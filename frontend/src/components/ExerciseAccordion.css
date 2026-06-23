@@ -1,0 +1,209 @@
+.accordion-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  animation: fadeInUp var(--transition-slow) ease-out both;
+}
+
+.accordion-item:hover {
+  border-color: var(--border-medium);
+}
+
+.accordion-item.open {
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: var(--shadow-glow);
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--transition-fast);
+  gap: var(--space-md);
+}
+
+.accordion-header:active {
+  background: var(--bg-surface-hover);
+}
+
+.accordion-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  flex: 1;
+}
+
+.accordion-order {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gradient-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+  flex-shrink: 0;
+}
+
+.accordion-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.accordion-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.weight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-input);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.weight-badge.has-weight {
+  background: var(--accent-gradient-soft);
+  color: var(--accent-orange);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+.accordion-chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  transition: transform var(--transition-base);
+  flex-shrink: 0;
+}
+
+.accordion-item.open .accordion-chevron {
+  transform: rotate(180deg);
+  color: var(--accent-red);
+}
+
+/* Body */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-base);
+}
+
+.accordion-item.open .accordion-body {
+  max-height: 300px;
+}
+
+.accordion-content {
+  padding: 0 var(--space-lg) var(--space-lg);
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.exercise-stat {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.stat-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Editable weight stat */
+.exercise-stat.editable {
+  border-color: rgba(249, 115, 22, 0.3);
+  background: rgba(249, 115, 22, 0.05);
+  position: relative;
+}
+
+.exercise-stat.editable .stat-label {
+  color: var(--accent-orange);
+}
+
+.weight-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.weight-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  width: 72px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.weight-input:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.weight-input.saved {
+  animation: successFlash 0.6s ease-out;
+  border-color: var(--success);
+}
+
+.weight-unit {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.save-indicator {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--success);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.save-indicator.visible {
+  opacity: 1;
+}

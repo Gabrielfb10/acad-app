@@ -1,0 +1,86 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(14, 14, 16, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-subtle);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.bottom-nav-inner {
+  display: flex;
+  max-width: 768px;
+  margin: 0 auto;
+  height: var(--bottom-nav-height);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 48px;
+  height: 3px;
+  border-radius: 0 0 var(--radius-full) var(--radius-full);
+  background: var(--accent-gradient);
+  transition: transform var(--transition-base);
+}
+
+.nav-tab.active {
+  color: var(--text-primary);
+}
+
+.nav-tab.active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.nav-tab-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform var(--transition-fast);
+}
+
+.nav-tab.active .nav-tab-icon {
+  transform: scale(1.1);
+}
+
+.nav-tab.active .nav-tab-icon svg {
+  stroke: url(#accent-gradient);
+}
+
+.nav-tab-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.nav-tab.active .nav-tab-label {
+  font-weight: 600;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Ripple effect */
+.nav-tab:active {
+  transform: scale(0.95);
+}

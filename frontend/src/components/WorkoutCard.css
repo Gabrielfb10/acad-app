@@ -1,0 +1,240 @@
+.workout-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  animation: fadeInUp var(--transition-slow) ease-out both;
+}
+
+.workout-card:hover {
+  border-color: var(--border-medium);
+}
+
+/* Card Header */
+.workout-card-header {
+  padding: var(--space-lg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.workout-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.workout-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.workout-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.workout-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workout-card-meta-item svg {
+  width: 14px;
+  height: 14px;
+}
+
+.workout-card-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.workout-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.workout-action-btn:active {
+  transform: scale(0.9);
+}
+
+.workout-action-btn.add {
+  background: var(--accent-gradient-soft);
+  color: var(--accent-orange);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.workout-action-btn.add:hover {
+  background: rgba(249, 115, 22, 0.2);
+}
+
+.workout-action-btn.delete {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--accent-red);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.workout-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.workout-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Card Body — Exercise list */
+.workout-card-body {
+  padding: 0 var(--space-lg) var(--space-lg);
+}
+
+.workout-exercise-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workout-exercise-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+  animation: fadeIn var(--transition-base) ease-out both;
+}
+
+.workout-exercise-item:first-child {
+  border-radius: var(--radius-sm) var(--radius-sm) 2px 2px;
+}
+
+.workout-exercise-item:last-child {
+  border-radius: 2px 2px var(--radius-sm) var(--radius-sm);
+}
+
+.workout-exercise-item:only-child {
+  border-radius: var(--radius-sm);
+}
+
+.workout-exercise-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  flex: 1;
+}
+
+.exercise-order-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  flex-shrink: 0;
+}
+
+.workout-exercise-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workout-exercise-weight {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  flex-shrink: 0;
+  margin-right: var(--space-sm);
+}
+
+.remove-exercise-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.remove-exercise-btn:hover {
+  color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.remove-exercise-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Empty exercises in card */
+.workout-card-empty {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+/* Delete confirm overlay */
+.delete-confirm-overlay {
+  background: rgba(239, 68, 68, 0.06);
+  border-top: 1px solid rgba(239, 68, 68, 0.15);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.delete-confirm-text {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-red);
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.confirm-btn {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: opacity var(--transition-fast);
+}
+
+.confirm-btn:active {
+  opacity: 0.8;
+}
+
+.confirm-btn.cancel {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.confirm-btn.danger {
+  background: var(--accent-red);
+  color: white;
+}
