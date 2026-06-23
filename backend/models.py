@@ -15,6 +15,7 @@ class Exercise(Base):
     default_reps = Column(Integer, default=15)
     default_rest = Column(Integer, default=50)
     weight = Column(Float, default=0.0)
+    owner = Column(String, default="Gabriel")
 
     # Relacionamento com workouts via tabela associativa
     workout_associations = relationship(
@@ -29,6 +30,7 @@ class Workout(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    owner = Column(String, default="Gabriel")
 
     # Relacionamento com exercícios via tabela associativa
     exercise_associations = relationship(

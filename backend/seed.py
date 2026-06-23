@@ -31,20 +31,20 @@ INITIAL_EXERCISES = [
 
 
 def seed_exercises(db: Session) -> None:
-    """Popula o banco com exercícios iniciais se estiver vazio."""
-    count = db.query(Exercise).count()
-    if count > 0:
-        return
-
-    for name in INITIAL_EXERCISES:
-        exercise = Exercise(
-            name=name,
-            default_sets=3,
-            default_reps=15,
-            default_rest=50,
-            weight=0.0,
-        )
-        db.add(exercise)
-
-    db.commit()
-    print(f"[OK] Seed concluido: {len(INITIAL_EXERCISES)} exercicios inseridos.")
+    """Popula o banco com exercícios iniciais se estiver vazio para cada usuário."""
+    users = ["Gabriel", "Momô <3"]
+    for owner in users:
+        count = db.query(Exercise).filter(Exercise.owner == owner).count()
+        if count == 0:
+            for name in INITIAL_EXERCISES:
+                exercise = Exercise(
+                    name=name,
+                    default_sets=3,
+                    default_reps=15,
+                    default_rest=50,
+                    weight=0.0,
+                    owner=owner,
+                )
+                db.add(exercise)
+            db.commit()
+            print(f"[OK] Seed concluido: {len(INITIAL_EXERCISES)} exercicios inseridos para {owner}.")

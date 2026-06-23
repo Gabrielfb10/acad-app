@@ -1,0 +1,125 @@
+.user-selection-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  background: var(--bg-primary);
+  background-image: radial-gradient(circle at top right, rgba(239, 68, 68, 0.05), transparent 50%),
+                    radial-gradient(circle at bottom left, rgba(249, 115, 22, 0.05), transparent 50%);
+}
+
+.user-selection-content {
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+}
+
+.user-selection-title {
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.02em;
+}
+
+.user-selection-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2xl);
+  font-weight: 500;
+}
+
+.user-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-xl);
+  padding: var(--space-md);
+}
+
+.user-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  cursor: pointer;
+  transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-glow);
+}
+
+.user-card:active {
+  transform: translateY(-4px);
+}
+
+.user-card.gabriel {
+  border-color: rgba(59, 130, 246, 0.2);
+}
+.user-card.gabriel:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.3);
+}
+
+.user-card.momo {
+  border-color: rgba(236, 72, 153, 0.2);
+}
+.user-card.momo:hover {
+  border-color: #ec4899;
+  box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.3);
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 2.5rem;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.user-card.gabriel .user-avatar {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+}
+
+.user-card.momo .user-avatar {
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+  color: white;
+}
+
+.user-heart {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  animation: heartbeat 2s infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  10% { transform: scale(1.15); }
+  20% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  40% { transform: scale(1); }
+}
+
+.user-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}

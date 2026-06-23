@@ -6,9 +6,17 @@ const API_BASE = window.location.port === "5173"
  * Wrapper para fetch com tratamento de erros.
  */
 async function request(url, options = {}) {
+  const currentUser = localStorage.getItem("currentUser") || "Gabriel";
+  
+  const headers = {
+    "Content-Type": "application/json",
+    "X-User": currentUser,
+    ...(options.headers || {}),
+  };
+
   const response = await fetch(`${API_BASE}${url}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
 
   if (!response.ok) {

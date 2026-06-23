@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -25,6 +25,22 @@ from seed import seed_exercises
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Cria tabelas e executa seed no startup."""
+    from sqlalchemy import text
+    
+    # Migração simples para adicionar coluna owner em tabelas existentes
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE exercises ADD COLUMN owner VARCHAR DEFAULT 'Gabriel'"))
+            conn.commit()
+        except Exception:
+            pass
+            
+        try:
+            conn.execute(text("ALTER TABLE workouts ADD COLUMN owner VARCHAR DEFAULT 'Gabriel'"))
+            conn.commit()
+        except Exception:
+            pass
+
     Base.metadata.create_all(bind=engine)
     from database import SessionLocal
     db = SessionLocal()
@@ -56,13 +72,19 @@ app.add_middleware(
 
 
 # ──────────────────────────────────
+# User Dependency
+# ──────────────────────────────────
+def get_current_user(x_user: str = Header("Gabriel")) -> str:
+    return x_user
+
+# ──────────────────────────────────
 # Exercises
 # ──────────────────────────────────
 
 @app.get("/api/exercises", response_model=list[ExerciseResponse])
-def list_exercises(db: Session = Depends(get_db)):
-    """Retorna todos os exercícios."""
-    return db.query(Exercise).order_by(Exercise.name).all()
+def list_exercises(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    """Retorna todos os exercícios do usuário logado."""
+    return db.query(Exercise).filter(Exercise.owner == current_user).order_by(Exercise.name).all()
 
 
 @app.put("/api/exercises/{exercise_id}/weight", response_model=ExerciseResponse)
@@ -70,9 +92,10 @@ def update_exercise_weight(
     exercise_id: int,
     payload: WeightUpdate,
     db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user),
 ):
     """Atualiza a carga de um exercício."""
-    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id, Exercise.owner == current_user).first()
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercício não encontrado")
     exercise.weight = payload.weight
@@ -86,9 +109,10 @@ def update_exercise_details(
     exercise_id: int,
     payload: ExerciseUpdate,
     db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user),
 ):
     """Atualiza as informações (séries, repetições, intervalo) de um exercício."""
-    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id, Exercise.owner == current_user).first()
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercício não encontrado")
     
@@ -106,9 +130,9 @@ def update_exercise_details(
 # ──────────────────────────────────
 
 @app.get("/api/workouts", response_model=list[WorkoutResponse])
-def list_workouts(db: Session = Depends(get_db)):
-    """Retorna todos os treinos com seus exercícios."""
-    workouts = db.query(Workout).order_by(Workout.created_at.desc()).all()
+def list_workouts(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    """Retorna todos os treinos com seus exercícios para o usuário."""
+    workouts = db.query(Workout).filter(Workout.owner == current_user).order_by(Workout.created_at.desc()).all()
     results = []
     for workout in workouts:
         exercises = []
@@ -128,9 +152,9 @@ def list_workouts(db: Session = Depends(get_db)):
 
 
 @app.post("/api/workouts", response_model=WorkoutResponse, status_code=201)
-def create_workout(payload: WorkoutCreate, db: Session = Depends(get_db)):
+def create_workout(payload: WorkoutCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     """Cria um novo treino."""
-    workout = Workout(title=payload.title)
+    workout = Workout(title=payload.title, owner=current_user)
     db.add(workout)
     db.commit()
     db.refresh(workout)
@@ -143,9 +167,9 @@ def create_workout(payload: WorkoutCreate, db: Session = Depends(get_db)):
 
 
 @app.delete("/api/workouts/{workout_id}", status_code=204)
-def delete_workout(workout_id: int, db: Session = Depends(get_db)):
+def delete_workout(workout_id: int, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     """Deleta um treino e suas associações."""
-    workout = db.query(Workout).filter(Workout.id == workout_id).first()
+    workout = db.query(Workout).filter(Workout.id == workout_id, Workout.owner == current_user).first()
     if not workout:
         raise HTTPException(status_code=404, detail="Treino não encontrado")
     db.delete(workout)
@@ -161,13 +185,14 @@ def add_exercise_to_workout(
     workout_id: int,
     payload: WorkoutExerciseAdd,
     db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user),
 ):
     """Adiciona um exercício a um treino."""
-    workout = db.query(Workout).filter(Workout.id == workout_id).first()
+    workout = db.query(Workout).filter(Workout.id == workout_id, Workout.owner == current_user).first()
     if not workout:
         raise HTTPException(status_code=404, detail="Treino não encontrado")
 
-    exercise = db.query(Exercise).filter(Exercise.id == payload.exercise_id).first()
+    exercise = db.query(Exercise).filter(Exercise.id == payload.exercise_id, Exercise.owner == current_user).first()
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercício não encontrado")
 
@@ -208,8 +233,14 @@ def remove_exercise_from_workout(
     workout_id: int,
     exercise_id: int,
     db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user),
 ):
     """Remove um exercício de um treino."""
+    # Validate workout ownership first
+    workout = db.query(Workout).filter(Workout.id == workout_id, Workout.owner == current_user).first()
+    if not workout:
+        raise HTTPException(status_code=404, detail="Treino não encontrado")
+
     assoc = (
         db.query(WorkoutExercise)
         .filter(

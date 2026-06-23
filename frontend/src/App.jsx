@@ -4,9 +4,11 @@ import ExerciseList from './components/ExerciseList';
 import WorkoutList from './components/WorkoutList';
 import NewWorkoutModal from './components/NewWorkoutModal';
 import AddExerciseModal from './components/AddExerciseModal';
+import UserSelection from './components/UserSelection';
 import { fetchExercises, fetchWorkouts } from './api/api';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('currentUser'));
   const [activeTab, setActiveTab] = useState('exercises');
   const [exercises, setExercises] = useState([]);
   const [workouts, setWorkouts] = useState([]);
@@ -39,14 +41,27 @@ export default function App() {
   }, []);
 
   const loadAll = useCallback(async () => {
+    if (!currentUser) return; // Só carrega se tiver usuário
     setLoading(true);
     await Promise.all([loadExercises(), loadWorkouts()]);
     setLoading(false);
-  }, [loadExercises, loadWorkouts]);
+  }, [currentUser, loadExercises, loadWorkouts]);
 
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  const handleSelectUser = (user) => {
+    localStorage.setItem('currentUser', user);
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    setCurrentUser(null);
+    setExercises([]);
+    setWorkouts([]);
+  };
 
   // ──────────────────────────────────
   // Handlers
@@ -87,6 +102,10 @@ export default function App() {
   // Loading state
   // ──────────────────────────────────
 
+  if (!currentUser) {
+    return <UserSelection onSelectUser={handleSelectUser} />;
+  }
+
   if (loading) {
     return (
       <div className="app-container" style={{
@@ -120,7 +139,7 @@ export default function App() {
             fontSize: '0.875rem',
             fontWeight: '500',
           }}>
-            Carregando...
+            Carregando treinos do {currentUser}...
           </p>
         </div>
       </div>
@@ -130,6 +149,48 @@ export default function App() {
   return (
     <>
       <div className="app-container">
+        <header className="app-header" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '16px',
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-subtle)',
+          marginBottom: '16px',
+          borderRadius: '0 0 16px 16px',
+          boxShadow: 'var(--shadow-sm)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+              {currentUser}
+            </span>
+          </div>
+          <button 
+            onClick={handleLogout}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-medium)',
+              color: 'var(--text-secondary)',
+              fontSize: '0.8125rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '14px', height: '14px' }}>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Sair
+          </button>
+        </header>
+
         {activeTab === 'exercises' ? (
           <ExerciseList
             exercises={exercises}
