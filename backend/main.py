@@ -10,6 +10,7 @@ from models import Exercise, Workout, WorkoutExercise
 from schemas import (
     ExerciseResponse,
     WeightUpdate,
+    ExerciseUpdate,
     WorkoutCreate,
     WorkoutExerciseAdd,
     WorkoutResponse,
@@ -75,6 +76,26 @@ def update_exercise_weight(
     if not exercise:
         raise HTTPException(status_code=404, detail="Exercício não encontrado")
     exercise.weight = payload.weight
+    db.commit()
+    db.refresh(exercise)
+    return exercise
+
+
+@app.put("/api/exercises/{exercise_id}", response_model=ExerciseResponse)
+def update_exercise_details(
+    exercise_id: int,
+    payload: ExerciseUpdate,
+    db: Session = Depends(get_db),
+):
+    """Atualiza as informações (séries, repetições, intervalo) de um exercício."""
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercício não encontrado")
+    
+    exercise.default_sets = payload.default_sets
+    exercise.default_reps = payload.default_reps
+    exercise.default_rest = payload.default_rest
+    
     db.commit()
     db.refresh(exercise)
     return exercise

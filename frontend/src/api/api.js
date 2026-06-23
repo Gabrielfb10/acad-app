@@ -37,6 +37,13 @@ export async function updateExerciseWeight(exerciseId, weight) {
   });
 }
 
+export async function updateExerciseDetails(exerciseId, data) {
+  return request(`/exercises/${exerciseId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
 // ──────────────────────────────────
 // Workouts
 // ──────────────────────────────────

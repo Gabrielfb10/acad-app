@@ -25,6 +25,11 @@ class ExerciseResponse(ExerciseBase):
 class WeightUpdate(BaseModel):
     weight: float
 
+class ExerciseUpdate(BaseModel):
+    default_sets: int
+    default_reps: int
+    default_rest: int
+
 
 # ──────────────────────────────────
 # Workout Schemas

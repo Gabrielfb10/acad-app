@@ -207,3 +207,107 @@
 .save-indicator.visible {
   opacity: 1;
 }
+
+/* Edit Mode Styles */
+.exercise-stat.editing {
+  border-color: var(--border-medium);
+  background: var(--bg-surface-hover);
+}
+
+.edit-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  width: 100%;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.edit-input:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.edit-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.edit-unit {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* Action Buttons */
+.exercise-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.exercise-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.exercise-action-btn:active {
+  transform: scale(0.95);
+}
+
+.exercise-action-btn.edit {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.exercise-action-btn.edit:hover {
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+.exercise-action-btn.edit svg {
+  width: 14px;
+  height: 14px;
+}
+
+.exercise-action-btn.cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.exercise-action-btn.cancel:hover {
+  color: var(--text-secondary);
+  background: var(--bg-input);
+}
+
+.exercise-action-btn.save {
+  background: var(--accent-gradient-soft);
+  color: var(--accent-orange);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.exercise-action-btn.save:hover:not(:disabled) {
+  background: rgba(249, 115, 22, 0.2);
+}
+
+.exercise-action-btn.save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

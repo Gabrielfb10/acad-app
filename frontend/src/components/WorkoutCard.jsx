@@ -1,10 +1,119 @@
-import { useState } from 'react';
-import { removeExerciseFromWorkout, deleteWorkout } from '../api/api';
+import { useState, useRef, useCallback } from 'react';
+import { removeExerciseFromWorkout, deleteWorkout, updateExerciseWeight } from '../api/api';
 import './WorkoutCard.css';
+
+function WorkoutExerciseItem({ assoc, onRemove, onUpdate }) {
+  const { exercise } = assoc;
+  const [weight, setWeight] = useState(String(exercise.weight || ''));
+  const [saved, setSaved] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const debounceRef = useRef(null);
+
+  const handleWeightChange = useCallback((e) => {
+    const value = e.target.value;
+    if (value !== '' && !/^\d*\.?\d*$/.test(value)) return;
+
+    setWeight(value);
+    setSaved(false);
+    setShowSaved(false);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      const numValue = parseFloat(value) || 0;
+      try {
+        await updateExerciseWeight(exercise.id, numValue);
+        setSaved(true);
+        setShowSaved(true);
+        onUpdate();
+        setTimeout(() => {
+          setSaved(false);
+          setShowSaved(false);
+        }, 1500);
+      } catch (err) {
+        console.error('Erro ao salvar carga:', err);
+      }
+    }, 500);
+  }, [exercise.id, onUpdate]);
+
+  const currentWeight = parseFloat(weight) || 0;
+
+  return (
+    <div className={`workout-exercise-card ${isOpen ? 'open' : ''}`}>
+      <div 
+        className="workout-exercise-header"
+        onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
+      >
+        <div className="workout-exercise-header-left">
+          <span className="workout-exercise-name">{exercise.name}</span>
+        </div>
+        <div className="workout-exercise-header-right">
+          <span className={`weight-badge ${currentWeight > 0 ? 'has-weight' : ''}`}>
+            {currentWeight > 0 ? `${currentWeight} kg` : '—'}
+          </span>
+          <button
+            className="remove-exercise-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(exercise.id);
+            }}
+            title="Remover exercício"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          <svg className={`workout-chevron ${isOpen ? 'open' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </div>
+      
+      <div className="workout-exercise-body">
+        <div className="exercise-grid">
+          <div className="exercise-stat">
+            <span className="stat-label">Séries</span>
+            <span className="stat-value">{exercise.default_sets}</span>
+          </div>
+          <div className="exercise-stat">
+            <span className="stat-label">Repetições</span>
+            <span className="stat-value">{exercise.default_reps}</span>
+          </div>
+          <div className="exercise-stat">
+            <span className="stat-label">Intervalo</span>
+            <span className="stat-value">{exercise.default_rest}s</span>
+          </div>
+          <div className="exercise-stat editable">
+            <span className="stat-label">Carga</span>
+            <div className="weight-input-wrapper">
+              <input
+                type="text"
+                inputMode="decimal"
+                className={`weight-input ${saved ? 'saved' : ''}`}
+                value={weight}
+                onChange={handleWeightChange}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="0"
+              />
+              <span className="weight-unit">kg</span>
+            </div>
+            <span className={`save-indicator ${showSaved ? 'visible' : ''}`}>
+              ✓ Salvo
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function WorkoutCard({ workout, index, onUpdate, onOpenAddExercise }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleRemoveExercise = async (exerciseId) => {
     try {
@@ -39,11 +148,16 @@ export default function WorkoutCard({ workout, index, onUpdate, onOpenAddExercis
 
   return (
     <div
-      className="workout-card"
+      className={`workout-card ${isOpen ? 'open' : ''}`}
       style={{ animationDelay: `${index * 60}ms` }}
       id={`workout-card-${workout.id}`}
     >
-      <div className="workout-card-header">
+      <div 
+        className="workout-card-header" 
+        onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
+      >
         <div className="workout-card-info">
           <h3 className="workout-card-title">{workout.title}</h3>
           <div className="workout-card-meta">
@@ -68,9 +182,11 @@ export default function WorkoutCard({ workout, index, onUpdate, onOpenAddExercis
         <div className="workout-card-actions">
           <button
             className="workout-action-btn add"
-            onClick={() => onOpenAddExercise(workout.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenAddExercise(workout.id);
+            }}
             title="Adicionar exercício"
-            id={`add-exercise-btn-${workout.id}`}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -79,55 +195,42 @@ export default function WorkoutCard({ workout, index, onUpdate, onOpenAddExercis
           </button>
           <button
             className="workout-action-btn delete"
-            onClick={() => setConfirmDelete(!confirmDelete)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirmDelete(!confirmDelete);
+            }}
             title="Excluir treino"
-            id={`delete-workout-btn-${workout.id}`}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>
           </button>
+          <svg className={`workout-chevron ${isOpen ? 'open' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
         </div>
       </div>
 
-      <div className="workout-card-body">
-        {workout.exercises.length > 0 ? (
-          <ul className="workout-exercise-list">
-            {workout.exercises.map((assoc) => (
-              <li
-                className="workout-exercise-item"
-                key={assoc.exercise_id}
-              >
-                <div className="workout-exercise-left">
-                  <span className="exercise-order-dot" />
-                  <span className="workout-exercise-name">
-                    {assoc.exercise.name}
-                  </span>
-                </div>
-                {assoc.exercise.weight > 0 && (
-                  <span className="workout-exercise-weight">
-                    {assoc.exercise.weight} kg
-                  </span>
-                )}
-                <button
-                  className="remove-exercise-btn"
-                  onClick={() => handleRemoveExercise(assoc.exercise_id)}
-                  title="Remover exercício"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="workout-card-empty">
-            Nenhum exercício adicionado ainda
-          </div>
-        )}
+      <div className="workout-card-body-wrapper">
+        <div className="workout-card-body">
+          {workout.exercises.length > 0 ? (
+            <div className="workout-exercise-list">
+              {workout.exercises.map((assoc) => (
+                <WorkoutExerciseItem
+                  key={assoc.exercise_id}
+                  assoc={assoc}
+                  onRemove={handleRemoveExercise}
+                  onUpdate={onUpdate}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="workout-card-empty">
+              Nenhum exercício adicionado ainda
+            </div>
+          )}
+        </div>
       </div>
 
       {confirmDelete && (
@@ -136,13 +239,19 @@ export default function WorkoutCard({ workout, index, onUpdate, onOpenAddExercis
           <div className="delete-confirm-actions">
             <button
               className="confirm-btn cancel"
-              onClick={() => setConfirmDelete(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setConfirmDelete(false);
+              }}
             >
               Cancelar
             </button>
             <button
               className="confirm-btn danger"
-              onClick={handleDeleteWorkout}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteWorkout();
+              }}
               disabled={loading}
             >
               {loading ? 'Excluindo...' : 'Excluir'}
